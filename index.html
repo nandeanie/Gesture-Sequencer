@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gesture Sequencer — No Hardware Required</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span class="logo-dot"></span>
+      <span class="logo-text">GESTURE<span class="logo-accent">SEQ</span></span>
+    </div>
+    <div class="header-controls">
+      <div class="mode-toggle" id="modeToggle">
+        <button class="mode-btn active" data-mode="mouse" title="Mouse mode">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="4" y="1" width="6" height="9" rx="3" stroke="currentColor" stroke-width="1.2"/><line x1="7" y1="5" x2="7" y2="8" stroke="currentColor" stroke-width="1.2"/></svg>
+          Mouse
+        </button>
+        <button class="mode-btn" data-mode="webcam" title="Webcam hand tracking">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="5" r="2.5" stroke="currentColor" stroke-width="1.2"/><path d="M3 13c0-2.2 1.8-4 4-4s4 1.8 4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+          Webcam
+        </button>
+      </div>
+      <div class="bpm-control">
+        <button class="bpm-btn" id="bpmDown">−</button>
+        <div class="bpm-display">
+          <span id="bpmValue">120</span>
+          <span class="bpm-label">BPM</span>
+        </div>
+        <button class="bpm-btn" id="bpmUp">+</button>
+      </div>
+      <button class="ctrl-btn" id="randomBtn" title="Randomize scale (R)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 5h1.5L5 3l2 8 2-5 1 2H12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Scale
+      </button>
+      <button class="ctrl-btn danger" id="clearBtn" title="Clear board (C)">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Clear
+      </button>
+    </div>
+  </header>
+
+  <!-- Main canvas -->
+  <div class="canvas-wrap">
+    <canvas id="seq" aria-label="Music sequencer grid"></canvas>
+    <div id="webcamOverlay" class="webcam-overlay hidden">
+      <video id="webcamVideo" autoplay muted playsinline></video>
+      <canvas id="webcamCanvas"></canvas>
+      <div class="webcam-status" id="webcamStatus">Starting camera…</div>
+    </div>
+  </div>
+
+  <!-- Footer controls -->
+  <footer>
+    <div class="footer-left">
+      <div class="scale-display">
+        <span class="scale-label">Scale</span>
+        <span id="scaleName">Minor Pentatonic</span>
+      </div>
+      <select id="scaleSelect" class="scale-select">
+        <option value="minor_penta">Minor Pentatonic</option>
+        <option value="major">Major</option>
+        <option value="minor">Natural Minor</option>
+        <option value="dorian">Dorian</option>
+        <option value="blues">Blues</option>
+        <option value="chromatic">Chromatic</option>
+      </select>
+      <select id="rootSelect" class="scale-select">
+        <option value="60">C4</option>
+        <option value="62">D4</option>
+        <option value="64">E4</option>
+        <option value="65">F4</option>
+        <option value="67">G4</option>
+        <option value="69">A4</option>
+        <option value="71">B4</option>
+      </select>
+    </div>
+    <div class="footer-right">
+      <div class="param-slider">
+        <label>Decay</label>
+        <input type="range" id="decaySlider" min="0.1" max="2" step="0.1" value="0.4">
+      </div>
+      <div class="param-slider">
+        <label>Influence</label>
+        <input type="range" id="influSlider" min="10" max="80" step="1" value="34">
+      </div>
+      <div class="param-slider">
+        <label>Reverb</label>
+        <input type="range" id="reverbSlider" min="0" max="1" step="0.05" value="0.3">
+      </div>
+    </div>
+  </footer>
+
+  <!-- Info panel -->
+  <div id="infoPanel" class="info-panel">
+    <p>🖱 <strong>Hover</strong> to fill cells · <strong>Click+drag</strong> to draw · <strong>Right-click</strong> to lock a row</p>
+    <p>Keyboard: <kbd>[</kbd><kbd>]</kbd> BPM · <kbd>R</kbd> randomize scale · <kbd>C</kbd> clear · <kbd>W</kbd> webcam</p>
+  </div>
+
+</div>
+
+<!-- ELI2 Modal -->
+<div id="eli2Modal" class="modal-backdrop hidden">
+  <div class="modal">
+    <button class="modal-close" id="closeModal">×</button>
+    <h2>🎵 What is this? (Explained simply!)</h2>
+    <div class="eli2-content">
+      <div class="eli2-block">
+        <div class="eli2-emoji">🎹</div>
+        <div>
+          <strong>It's a music machine!</strong> Imagine a big grid of squares — like a tic-tac-toe board but much bigger. Each square is a musical note. When the line sweeps across and hits a lit-up square, it plays that note!
+        </div>
+      </div>
+      <div class="eli2-block">
+        <div class="eli2-emoji">✋</div>
+        <div>
+          <strong>Your hand controls it!</strong> Move your mouse (or your real hand on webcam!) over the grid. Wherever you hover, that square glows and gets "energy." The more you hover, the brighter it gets. Brighter = louder note!
+        </div>
+      </div>
+      <div class="eli2-block">
+        <div class="eli2-emoji">🌊</div>
+        <div>
+          <strong>It fades like water!</strong> When you move away, the energy slowly drains out — like a puddle drying up. Move your hand back and it fills up again!
+        </div>
+      </div>
+      <div class="eli2-block">
+        <div class="eli2-emoji">🧮</div>
+        <div>
+          <strong>There's clever math inside!</strong> The original had to correct for the camera being tilted — like how a photo looks different if your phone is crooked. It used 3D math (rotation matrices!) to fix it automatically.
+        </div>
+      </div>
+    </div>
+    <button class="modal-play-btn" id="closeModalPlay">Got it, let me play! →</button>
+  </div>
+</div>
+
+<button id="eli2Btn" class="eli2-fab" title="Explain like I'm 2!">?</button>
+
+<script src="sequencer.js"></script>
+</body>
+</html>
