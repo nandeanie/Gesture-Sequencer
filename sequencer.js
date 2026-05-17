@@ -8,6 +8,7 @@
 const COLS = 16;
 const ROWS = 8;
 
+
 // Musical scales (intervals in semitones from root)
 const SCALES = {
   minor_penta: { name: 'Minor Pentatonic', intervals: [0,3,5,7,10] },
