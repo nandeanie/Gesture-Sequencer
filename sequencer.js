@@ -1,8 +1,4 @@
-/* ==========================================================
-   GESTURE SEQUENCER — sequencer.js
-   Ported from Processing/Java + Kinect → Pure browser
-   No hardware required. Mouse or webcam hand tracking.
-   ========================================================== */
+
 
 // ── Constants ──────────────────────────────────────────────
 const COLS = 16;
