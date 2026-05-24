@@ -264,6 +264,7 @@ class Renderer {
           const r = (vel / 120) * maxRadius;
           const cx = px + cellW / 2;
           const cy = py + cellH / 2;
+          
 
           // Outer glow
           const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.5);
